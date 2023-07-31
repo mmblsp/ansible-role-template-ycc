@@ -1,0 +1,70 @@
+---
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  # no_log: "{{ molecule_no_log }}"
+
+  tasks:
+    - name: Append public ssh key
+      block:
+        - find:
+            paths: "{{ lookup('env', 'HOME') }}/.ssh"
+            pattern: "*.pub"
+          register: keys
+
+        - set_fact:
+            keys_content: "{{keys_content| d([]) + [lookup('file', keys.files[key_file].path)] }}"
+          with_items: "{{ keys.files }}"
+          loop_control:
+            index_var: key_file
+
+    - name: "Create VM"
+      ycc_vm:
+        auth:
+          token: "{{ lookup('env', 'YCC_TOKEN') }}"
+        folder_id: "{{ lookup('env', 'YCC_FOLDER_ID') }}"
+        subnet_id: "{{ lookup('env', 'YCC_SUBNET_ID') }}"
+        login: "{{ lookup('env', 'USER') }}"
+        public_ssh_key: "{{ keys_content | join('\n') }}"
+        # ----
+        name: "{{ item.name }}-{{ lookup('env', 'USER') }}"
+        hostname: "{{ item.name }}-{{ lookup('env', 'USER') }}"
+        zone_id: "{{ item.zone_id }}"
+        image_id: "{{ item.image_id }}"
+        assign_public_ip: "{{ item.assign_public_ip }}"
+        fqdn: "{{ item.fqdn }}"
+        state: present
+      register: servers
+      with_items: "{{ molecule_yml.platforms }}"
+
+    - debug:
+        msg: "{{ servers }}"
+      # with_items: "{{ servers }}"
+      # loop_control:
+      #   index_var: vm_instance
+
+    # - name: Populate instance config dict
+    #   set_fact:
+    #     instance_conf_dict:
+    #       {
+    #         "instance": "{{ }}",
+    #         "address": "{{ }}",
+    #         "user": "{{ }}",
+    #         "port": "{{ }}",
+    #         "identity_file": "{{ }}",
+    #       }
+    #   with_items: "{{ server.results }}"
+    #   register: instance_config_dict
+    #   when: server.changed | bool
+
+    # - name: Convert instance config dict to a list
+    #   set_fact:
+    #     instance_conf: "{{ instance_config_dict.results | map(attribute='ansible_facts.instance_conf_dict') | list }}"
+    #   when: server.changed | bool
+
+    # - name: Dump instance config
+    #   copy:
+    #     content: "{{ instance_conf | to_json | from_json | molecule_to_yaml | molecule_header }}"
+    #     dest: "{{ molecule_instance_config }}"
+    #   when: server.changed | bool

@@ -1,0 +1,34 @@
+---
+dependency:
+  name: shell
+  command: "ansible-config dump | grep DEFAULT_MODULE_PATH"
+
+driver:
+  name: delegated
+lint:
+  name: yamllint
+platforms:
+  # TODO: Rename a virtual machine for clarity using the template <family-id>-<rolename>
+  # TODO: Delete comment
+  - name: centos7-temlate
+    hostname: centos7-temlate
+    fqdn: centos7-temlate
+    zone_id: ru-central1-a
+    image_id: fd8dvus8s5qjad7td8p4
+    family_id: centos-7
+    assign_public_ip: false
+  - name: centos7-temlate1
+    hostname: centos7-temlate1
+    fqdn: centos7-temlate1
+    zone_id: ru-central1-a
+    image_id: fd8dvus8s5qjad7td8p4
+    family_id: centos-7
+    assign_public_ip: false
+provisioner:
+  name: ansible
+  lint:
+    name: ansible-lint
+verifier:
+  name: testinfra
+  lint:
+    name: flake8

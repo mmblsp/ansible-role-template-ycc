@@ -1,0 +1,16 @@
+galaxy_info:
+  author: Anatoly Zhuckov (https://vk.com/mmblspace)
+  # TODO: Replace description and delete comment
+  description: This is the role template
+  license: MIT
+
+  min_ansible_version: 2.8.8
+
+  platforms:
+    - name: EL
+      versions:
+        - "7"
+
+  galaxy_tags: []
+
+dependencies: []

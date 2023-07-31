@@ -1,0 +1,37 @@
+---
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: set vars from file
+      set_fact:
+        jsondata: "{{ lookup('file', 'tmp.json') | from_json }}"
+
+    - debug:
+        msg: |
+          {{
+            jsondata.results[vm_instance]['response']['name'],
+            jsondata.results[vm_instance]['response']['networkInterfaces'][0]['primaryV4Address']['address']
+          }}
+      with_items: "{{ jsondata.results }}"
+      loop_control:
+        index_var: vm_instance
+
+    - find:
+        paths: "{{ lookup('env', 'HOME') }}/.ssh"
+        pattern: "*.pub"
+      register: keys
+
+    - debug:
+        msg: "{{ keys }}"
+
+    - set_fact:
+        keys_content: "{{keys_content|d([]) + [lookup('file', keys.files[key_file].path)] }}"
+      with_items: "{{ keys.files }}"
+      loop_control:
+        index_var: key_file
+
+    - copy:
+        content: "{{ keys_content | join('\n') }}"
+        dest: keys.txt

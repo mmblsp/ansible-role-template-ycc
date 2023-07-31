@@ -1,0 +1,48 @@
+---
+# tasks file for ycc_vm
+
+- set_fact:
+    ansible_python_interpreter: /usr/bin/python3
+
+- name: create group
+  group:
+    name: mmbl
+    state: present
+
+- name: create user mmbl
+  user:
+    name: mmbl
+    group: mmbl
+    home: /opt/mmbl/
+    groups:
+      - wheel
+    state: present
+
+- file:
+    path: /opt/mmbl/ycc_vm
+    owner: mmbl
+    group: mmbl
+    state: directory
+
+- copy:
+    src: files/requirements.txt
+    dest: /opt/mmbl/ycc_vm/requirements.txt
+    group: mmbl
+    owner: mmbl
+
+- name: create venv
+  command:
+    cmd: python3 -m venv /opt/mmbl/venv
+    creates: /opt/mmbl/venv
+
+- name: Update pip
+  pip:
+    name: pip
+    state: latest
+    extra_args: --upgrade
+    virtualenv: /opt/mmbl/venv
+
+- name: Install packages for requirements.txt
+  pip:
+    requirements: /opt/mmbl/ycc_vm/requirements.txt
+    virtualenv: /opt/mmbl/venv

@@ -1,0 +1,8 @@
+{
+  "ansible.python.interpreterPath": "/home/mmbl/projects/roles/.venv/bin/python",
+  "ansible.validation.enabled": true,
+  "ansible.ansible.path": "ansible",
+  "ansible.validation.lint.enabled": false,
+  "ansible.completion.provideModuleOptionAliases": true,
+  "ansible.ansible.useFullyQualifiedCollectionNames": false
+}

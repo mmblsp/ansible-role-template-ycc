@@ -1,0 +1,33 @@
+---
+- name: Destroy
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  no_log: "{{ molecule_no_log }}"
+  tasks:
+    - name: "Destroy VM"
+      ycc_vm:
+        auth:
+          token: "{{ lookup('env', 'YCC_TOKEN') }}"
+        folder_id: "{{ lookup('env', 'YCC_FOLDER_ID') }}"
+        subnet_id: "{{ lookup('env', 'YCC_SUBNET_ID') }}"
+        # ----
+        name: "{{ item.name }}-{{ lookup('env', 'USER') }}"
+        hostname: "{{ item.hostname }}"
+        zone_id: "{{ item.zone_id }}"
+        image_id: "{{ item.image_id }}"
+        assign_public_ip: "{{ item.assign_public_ip }}"
+        fqdn: "{{ item.fqdn }}"
+        state: absent
+      register: servers
+      with_items: "{{ molecule_yml.platforms }}"
+
+    # - name: Populate instance config
+    #   set_fact:
+    #     instance_conf: {}
+
+    # - name: Dump instance config
+    #   copy:
+    #     content: "{{ instance_conf | to_json | from_json | molecule_to_yaml | molecule_header }}"
+    #     dest: "{{ molecule_instance_config }}"
+    #   when: server.changed | bool

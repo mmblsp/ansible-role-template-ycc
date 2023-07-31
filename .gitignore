@@ -1,0 +1,6 @@
+.venv
+.vagrant
+.vscode
+.pytest_cache
+*.log
+__pycache__
